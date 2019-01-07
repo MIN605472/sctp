@@ -37,6 +37,8 @@ AliasTable::AliasTable(const std::vector<Road> &roads)
     alias_[m] = g;
     heights_[m] = roads_[m].probability;
     roads_[g].probability -= n - roads_[m].probability;
+    // roads_[g].probability = roads_[g].probability + roads_[m].probability -
+    // n;
     if (roads_[g].probability >= n || mm <= g) {
       for (m = mm; m < roads_.size() && roads_[m].probability >= n; ++m)
         ;
@@ -67,7 +69,7 @@ AliasTable::AliasTable(const std::vector<Road> &roads)
 
 Road AliasTable::Sample() {
   int u = RandomNumber<int>(0, roads_.size() - 1);
-  float v = RandomNumber<float>(0.0, 1.0);
+  float v = RandomNumber<float>(0.0, 1.0 / roads_.size());
   auto i = v < heights_[u] ? roads_[u] : roads_[alias_[u]];
   // std::cerr << "u: " << u << ";"
   //           << "alias: " << alias_[u] << ";"
