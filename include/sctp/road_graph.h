@@ -16,6 +16,17 @@ struct Road {
                       // this road
 };
 
+class AliasTable {
+ public:
+  AliasTable(const std::vector<Road> &roads);
+  Road Sample();
+
+ private:
+  std::vector<Road> roads_;
+  std::vector<int> alias_;
+  std::vector<float> heights_;
+};
+
 // Simple structrue holding the mean minutes that take each courier to deliver
 // the package. If the value < 0 then the courier can't reach the specified
 // destination.
@@ -45,6 +56,7 @@ class RoadGraph {
   int starting_inter_b_;
   int ending_inter_;
   std::vector<std::vector<Road>> inter_;
+  std::vector<AliasTable> alias_tables_;
 };
 }  // namespace sctp
 #endif

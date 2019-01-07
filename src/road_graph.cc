@@ -2,10 +2,80 @@
 #include <fstream>
 #include <future>
 #include <iostream>
+#include <limits>
 #include <random>
 #include <thread>
 
 using namespace sctp;
+
+template <typename T>
+T RandomNumber(T min, T max) {
+  static std::mt19937 mt((std::random_device())());
+  std::uniform_real_distribution<T> dist(min, max);
+  return dist(mt);
+}
+
+template <>
+int RandomNumber<int>(int min, int max) {
+  static std::mt19937 mt((std::random_device())());
+  std::uniform_int_distribution<int> dist(min, max);
+  return dist(mt);
+}
+
+AliasTable::AliasTable(const std::vector<Road> &roads)
+    : roads_(roads), alias_(roads.size()), heights_(roads.size()) {
+  float n = 1.0 / roads_.size();
+  int g;
+  int m;
+  int mm;
+  for (g = 0; g < roads_.size() && roads_[g].probability < n; ++g)
+    ;
+  for (m = 0; m < roads_.size() && roads_[m].probability >= n; ++m)
+    ;
+  mm = m + 1;
+  while (g < roads_.size() && m < roads_.size()) {
+    alias_[m] = g;
+    heights_[m] = roads_[m].probability;
+    roads_[g].probability -= n - roads_[m].probability;
+    if (roads_[g].probability >= n || mm <= g) {
+      for (m = mm; m < roads_.size() && roads_[m].probability >= n; ++m)
+        ;
+      mm = m + 1;
+    } else {
+      m = g;
+    }
+    for (; g < roads_.size() && roads_[g].probability < n; ++g)
+      ;
+  }
+  for (; g < roads_.size(); ++g) {
+    if (roads_[g].probability >= n) {
+      heights_[g] = std::numeric_limits<float>::max();
+      alias_[g] = g;
+    }
+  }
+  if (m < roads_.size()) {
+    heights_[m] = std::numeric_limits<float>::max();
+    alias_[m] = m;
+    for (m = mm; m < roads_.size(); ++m) {
+      if (roads_[m].probability <= n) {
+        heights_[m] = std::numeric_limits<float>::max();
+        alias_[m] = m;
+      }
+    }
+  }
+}
+
+Road AliasTable::Sample() {
+  int u = RandomNumber<int>(0, roads_.size() - 1);
+  float v = RandomNumber<float>(0.0, 1.0);
+  auto i = v < heights_[u] ? roads_[u] : roads_[alias_[u]];
+  // std::cerr << "u: " << u << ";"
+  //           << "alias: " << alias_[u] << ";"
+  //           << "tu: " << (v < heights_[u]) << ";";
+  // std::cerr << "n: " << i.next_inter << ";";
+  // std::cerr << "s: " << roads_.size() << ";";
+  return i;
+}
 
 RoadGraph::RoadGraph()
     : num_inter_(-1),
@@ -53,6 +123,10 @@ bool RoadGraph::Parse(const std::string &path) {
     inter_[v].push_back(road_v);
   }
   file.close();
+  // alias_tables_.resize(num_inter_);
+  for (const auto &roads : inter_) {
+    alias_tables_.emplace_back(roads);
+  }
   return true;
 }
 
@@ -63,27 +137,7 @@ float RandomNumber() {
 }
 
 Road RoadGraph::SampleNextRoad(int current_intersection) {
-  float epsilon = RandomNumber();
-  float acc = 0;
-  const std::vector<Road> &roads = inter_[current_intersection];
-  // std::cerr << std::this_thread::get_id() << " Inter.: " <<
-  // current_intersection
-  //           << '\n';
-  // std::cerr << std::this_thread::get_id() << " Epsilon: " << epsilon << '\n';
-  // std::cerr << std::this_thread::get_id() << " Roads size: " << roads.size()
-  //           << '\n';
-  for (int i = 0; i < roads.size() - 1; ++i) {
-    acc += roads[i].probability;
-    // std::cerr << std::this_thread::get_id() << " Acc.: " << acc << '\n';
-    if (epsilon <= acc) {
-      return roads[i];
-    }
-  }
-  // Sometimes the probabilites don't add up to exactly 1, but very close to it.
-  // So we simply give the remaining probability to the last element. For
-  // example, the total probability can be 0.9937 and our epsilon could be
-  // 0.9942; thus the sampled element is the last one.
-  return roads.back();
+  return alias_tables_[current_intersection].Sample();
 }
 
 float RoadGraph::SimulateTraversal(int start_inter, int end_inter,
@@ -94,12 +148,13 @@ float RoadGraph::SimulateTraversal(int start_inter, int end_inter,
   Minutes total_minutes = 0;
   for (int i = 0; i < iterations; ++i) {
     for (int current_inter = start_inter; current_inter != end_inter;) {
+      // std::cout << current_inter << ';';
       Road road = SampleNextRoad(current_inter);
       total_minutes += road.time;
       current_inter = road.next_inter;
     }
   }
-  return (float)total_minutes / iterations;
+  return total_minutes / (float)iterations;
 }
 
 CouriersMeanSec RoadGraph::SimulateTraversalCouriers(int iterations) {

@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <cstring>
+#include <iomanip>
 #include <iostream>
 #include "sctp/road_graph.h"
 
@@ -48,11 +49,13 @@ int main(int argc, char *argv[]) {
   if (couriers_time.mean_sec_a < 0) {
     std::cout << "Courier A: Unreachable\n";
   } else {
-    std::cout << "Courier A: " << couriers_time.mean_sec_a << '\n';
+    std::cout << "Courier A: " << std::setprecision(2) << std::fixed
+              << couriers_time.mean_sec_a << '\n';
   }
   if (couriers_time.mean_sec_b < 0) {
     std::cout << "Courier B: Unreachable\n";
   } else {
-    std::cout << "Courier B: " << couriers_time.mean_sec_b << '\n';
+    std::cout << "Courier B: " << std::setprecision(2) << std::fixed
+              << couriers_time.mean_sec_b << '\n';
   }
 }
