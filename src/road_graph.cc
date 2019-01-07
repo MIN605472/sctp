@@ -37,8 +37,6 @@ AliasTable::AliasTable(const std::vector<Road> &roads)
     alias_[m] = g;
     heights_[m] = roads_[m].probability;
     roads_[g].probability -= n - roads_[m].probability;
-    // roads_[g].probability = roads_[g].probability + roads_[m].probability -
-    // n;
     if (roads_[g].probability >= n || mm <= g) {
       for (m = mm; m < roads_.size() && roads_[m].probability >= n; ++m)
         ;
@@ -71,11 +69,6 @@ Road AliasTable::Sample() {
   int u = RandomNumber<int>(0, roads_.size() - 1);
   float v = RandomNumber<float>(0.0, 1.0 / roads_.size());
   auto i = v < heights_[u] ? roads_[u] : roads_[alias_[u]];
-  // std::cerr << "u: " << u << ";"
-  //           << "alias: " << alias_[u] << ";"
-  //           << "tu: " << (v < heights_[u]) << ";";
-  // std::cerr << "n: " << i.next_inter << ";";
-  // std::cerr << "s: " << roads_.size() << ";";
   return i;
 }
 
@@ -90,14 +83,13 @@ RoadGraph::RoadGraph()
 bool RoadGraph::Parse(const std::string &path) {
   std::ifstream file;
   file.open(path);
-  if (!file.is_open()) {
+  if (file.fail()) {
     return false;
   }
   // Read the header info
   file >> num_inter_ >> num_roads_ >> ending_inter_ >> starting_inter_a_ >>
       starting_inter_b_;
   if (file.fail()) {
-    file.close();
     return false;
   }
   inter_.resize(num_inter_);
@@ -110,32 +102,28 @@ bool RoadGraph::Parse(const std::string &path) {
     float p_vu = -1;
     file >> u >> v >> t_uv >> p_uv >> p_vu;
     if (file.fail()) {
-      file.close();
       return false;
     }
-    Road road_u;
-    road_u.next_inter = v;
-    road_u.time = t_uv;
-    road_u.probability = p_uv;
-    Road road_v;
-    road_v.next_inter = u;
-    road_v.time = t_uv;
-    road_v.probability = p_vu;
-    inter_[u].push_back(road_u);
-    inter_[v].push_back(road_v);
+    if (p_uv > 0) {
+      Road road_u;
+      road_u.next_inter = v;
+      road_u.time = t_uv;
+      road_u.probability = p_uv;
+      inter_[u].push_back(road_u);
+    }
+    if (p_vu > 0) {
+      Road road_v;
+      road_v.next_inter = u;
+      road_v.time = t_uv;
+      road_v.probability = p_vu;
+      inter_[v].push_back(road_v);
+    }
   }
-  file.close();
-  // alias_tables_.resize(num_inter_);
+  alias_tables_.reserve(inter_.size());
   for (const auto &roads : inter_) {
     alias_tables_.emplace_back(roads);
   }
   return true;
-}
-
-float RandomNumber() {
-  static std::mt19937 mt((std::random_device())());
-  static std::uniform_real_distribution<float> dist(0.0, 1.0);
-  return dist(mt);
 }
 
 Road RoadGraph::SampleNextRoad(int current_intersection) {

@@ -41,10 +41,13 @@ bool ParseArgs(int argc, char *argv[]) {
 int main(int argc, char *argv[]) {
   if (argc != 5 || !ParseArgs(argc, argv)) {
     std::cerr << kUsage;
-    return 1;
+    return -1;
   }
   RoadGraph parser;
-  parser.Parse(file_path);
+  if (!parser.Parse(file_path)) {
+    std::cerr << "Error while parsing the input file.\n";
+    return -1;
+  }
   CouriersMeanSec couriers_time = parser.SimulateTraversalCouriers(iterations);
   if (couriers_time.mean_sec_a < 0) {
     std::cout << "Courier A: Unreachable\n";

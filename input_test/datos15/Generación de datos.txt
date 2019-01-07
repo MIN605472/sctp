@@ -1,0 +1,11 @@
+La generación de los conjuntos de datos se automatizó mediante un programa que genera grafos de forma aleatoria, en función de una serie de parámetros.
+
+Dicho programa tiene en cuenta las siguientes variables: 
+    1. N : número de intersecciones de la ciudad, [3,300]
+    2. M : número de carreteras en la ciudad, [N/2, N(N−1) /2].  No se garantiza que los datos generados tengan solución , pues el algoritmo ha de contemplar la posibilidad de que así sea.
+    3. Distribución: Hace referencia a cómo se asignan las probabilidades para cada carretera de salida de una intersección (cuya suma siempre es 1).      Puede ser uniforme, donde cada carretera de salida tendrá la misma probabilidad, o aleatoria, permitiendo además elegir entre sin restricciones y restringiendo el ratio entre la probabilidad mayor y la menor, es decir un ratio de 5 garantiza que la mayor probabilidad de tomar una carretera es como mucho 5 veces la menor.
+
+Como tiempo de las carreteras se usa siempre una distribución uniforme de 1 a 1000.
+
+
+Se generaron 5 conjuntos de datos para distintos tamaños del problema [3,50,100 y 300], cada conjunto con una entrada para cada Distribución de probabilidad de las carreteras y para cada número de aristas N [N/2, N(N-1) / 4 y N(N-1)/2].

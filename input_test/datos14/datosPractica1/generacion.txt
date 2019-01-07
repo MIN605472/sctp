@@ -1,0 +1,34 @@
+    Julia Guerrero Viu - 716185 y Sergio Izquierdo Barranco - 721057
+    Práctica 1 - Algoritmia para problemas difíciles
+    20/Diciembre/2018
+
+GENERACIÓN DE DATOS DE PRUEBA
+    Para la generación de datos de prueba se ha creado un script de Python con parámetros en función del caso de prueba a generar.
+    Se han considerado cuatro tipos de grafos principales (un caso medio aleatorio y tres tipos de casos extremos) y para cada tipo algunos casos concretos, creando en total 11 casos diferentes. Además, cada uno de esos casos se ha generado con tres tamaños diferentes: 10, 150 y 300 (considerando como tamaño el número de intersecciones, o número de vértices del grafo, N). Por tanto, se han generado finalmente 33 ficheros distintos de prueba.
+
+    Los tipos considerados son los siguientes:
+        1. Aleatorio: Fijado el número de intersecciones (el tamaño del problema a 10, 150 y 300), tanto el número de carreteras por intersección, como sus probabilidades y las longitudes se generan de forma aleatoria. A, B y C también son intersecciones aleatorias.
+            1.1. Denso: Densidad media de número de carreteras (o número de probabilidades diferente de 0) fijada en 0.8
+            1.2. Medio: Densidad media de 0.5
+            1.3. Disperso: Densidad media de 0.2
+
+        2. Clique: Fijado el número de intersecciones se crea un clique, es decir, todas las intersecciones están conectadas con todas mediante carreteras. A, B y C son intersecciones aleatorias.
+            2.1. Largo: Las longitudes de las carreteras conectadas con C se crean más largas que el resto (todas aleatorias entre [1,10] y las que llevan a C longitud 20). Probabilidades de todas las carreteras del grafo iguales (probabilidad = 1/(N-1)).
+            2.2. Altaprob: Todas las longitudes del grafo son iguales (longitud 1), pero las probabilidades de las carreteras conectadas con C son altas, 3*(1/(N-1)).
+            2.3. Bajaprob: Todas las longitudes del grafo son iguales (longitud 1), pero las probabilidades de las carreteras conectadas con C son bajas, 0.1*(1/(N-1)).
+
+        3. Cadena: Fijado el número de intersecciones se crea un grafo cadena con A y B en los extremos de esta y C la intersección central (se crean con tamaños impares, 9, 149 y 299, para que haya un punto central a la misma distancia de ambos). Grafo cadena se refiere que cada vértice solo está conectado con dos vértices (el anterior y el siguiente) a excepción de los extremos (A y B), solo conectados con uno. Los casos considerados a continuación se han creado asimétricos para poder hacer comparaciones interesantes entre el recorrido desde A y desde B.
+            3.1. Forwback: La mitad de la cadena que parte de A hasta C, tiene en cada una de sus intersecciones probabilidad alta de forward (es decir de acercarse a C), fijadas en el rango [0.6666, 0.9999] y longitudes de carreteras largas, fijadas en el rango [10,20]. Por el contrario, la cadena que parte de B, tiene probabilidades más altas de backward (alejarse de C), fijadas en el rango [0.6666, 0.9999] y longitudes de carreteras cortas, en el rango [1,10].
+            3.2. Shortcuts: Las longitudes de todas las carreteras son iguales (longitud 1). La mitad de A tiene probabilidades medias, es decir, similar probabilidad de forward y backward en cada intersección, en rango [0.4, 0.6]. La mitad de B tiene probabilidades medias también, pero añadidos shortcuts, es decir, carreteras conectadas directamente con C en cada intersección, de baja probabilidad, en rango [0, 0.25] (como está incluido el 0 en el rango podría no existir alguno de los shortcuts).
+        
+        4. Kidneys: Fijado el número de intersecciones totales se crea un grafo que contiene dos subgrafos aleatorios medios (tipo 1) disjuntos cada uno de los cuales está conectado con el destino C únicamente por una arista. (SubgrafoA)-C-(SubgrafoB). Como en el caso del tipo cadena, se crean con tamaños impares para que los dos subgrafos tengan el mismo número de nodos.
+            4.1. Probs: Los dos subgrafos tienen densidad media (0.5) y longitudes y probabilidades aleatorias. La probabilidad de la carretera conectada con C está controlada y es alta para el subgrafoA (3*(1/N) y baja para el subgrafoB (0.1*(1/N).
+            4.2. Densidad: El subgrafoA es de densidad alta (0.8) y el subgrafoB de densidad baja (0.2), con longitudes y probabilidades aleatorias. Ambas carreteras conectadas directamente con C tienen probabilidad igual (2*1/N) y longitudes iguales.
+            4.3. Unreach: C está desconectado de ambos subgrafos y por tanto no es alcanzable. Tanto el subgrafoA como el B tienen densidad media y probabilidades y longitudes aleatorias.
+
+
+    Los ficheros de datos de prueba, para poder reconocerlos fácilmente, siguen el esquema de nombrado: "<tipo>-<caso>-<tamañoN>.txt", por ejemplo "aleatorio-medio-300.txt", es el grafo de tipo 1, aleatorio, con densidad media y con 300 intersecciones.
+
+    En el script de Python, se puede seleccionar con parámetros el tipo, el caso concreto y el tamaño del problema. Cada uno de los tipos está representado por una función que genera una matriz de adyacencia con las probabilidades de ir de una intersección a otra (0 si no están conectadas) y una matriz simétrica con las longitudes de cada una de las carreteras. Se escribe a continuación en el fichero a partir de la información de esas matrices.
+
+    Finalmente comentar que a partir de los casos considerados, como el número de parámetros a variar es grande (forma grafo, tamaño, densidad, probabilidades, longitudes) se podrían generar muchos más casos como distintas combinaciones de los anteriores, pero se ha decidido que los casos generados ya eran suficientemente representativos.

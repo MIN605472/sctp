@@ -1,0 +1,25 @@
+Datos de prueba de Oscar Fraca y Alejandro Cano
+
+Los datos se han generado mediante un programa que recibe de entrada el numero de nodos, la probabilidad de hacer un camino.
+el nodo casa, y los nodos almacen.
+Creamos tres matrices NxN, conexion, tiempo y probabilidad. Generamos en la primera de ellas (en forma triangular inferior) 
+si dos intersecciones (fila y columna) estan conectadas por una carretera, la probabilidad de esto varia entre los casos ya 
+que es un parametro de entrada.
+Si se conectan, se le asigna a esa posicion y a su simetrica un valor de tiempo entre 5m y 1h en la segunda matriz.
+Despues para todas las intersecciones que tienen conexiones se genera un numero aleatorio sobre 100 para la primera conexion
+y se resta ese valor a 100, se genera otro valor para la segunda... asi hasta todas las conexiones de una interseccion, de forma 
+que la suma de ellas de 100, luego se divide por 100 para tener el valor en porcentaje. Luego se asigna un valor de cero a todas
+las conexiones desde la interseccion casa.
+Finalmente se vuelca en un fichero los parametros y carreteras y se calcula que estos no excedan de los limites establecidos.
+
+Casos
+1- 15 nodos, probabilidad de conexion 1/2
+2- 30 nodos, probabilidad de conexion 1/2
+3- 100 nodos, probabilidad de conexion 1/2
+4- 50 nodos, probabilidad de conexion 1/3
+5- 50 nodos, probabilidad de conexion 2/3
+6- 300 nodos, probabilidad de conexion 1/2
+7- 10 nodos, los almacenes no pueden llegar a la casa
+8- 10 nodos, solo un almacen puede llegar a la casa
+9- 10 nodos, minimo numero de conexiones (5)
+10- 10 nodos, maximo numero de conexiones (45)
