@@ -7,7 +7,8 @@
 using namespace sctp;
 
 static const char kUsage[] =
-    R"(Usage:
+    R"(Stochastic Canadian Traveller Problem
+Usage:
   ./SCTP -i <int> -f <string>
 Options:
   -i <int> the number of iterations
